@@ -89,6 +89,9 @@ python3 unichain_sepolia.py
 ---
 
 ## Catatan Tambahan
+- multi.py digunakan untuk transaksi banyak wallet serta bisa generate new wallet juga
+- load.py digunakan untuk menyimpan alamat wallet baru yang di generate ke wallet.txt (digunakan untuk mengirim saldo dari bot unichain_sepolia.py)
+- unichain_sepolia.py akan mengirim terlebih dahulu ke alamat prioritas yaitu ke alamat yang di simpan di wallet.txt , jika tidak ada maka akan mengirim ke random alamat
 - Pastikan Anda memiliki koneksi internet yang stabil.
 - Jika ada masalah, silakan cek dokumentasi tambahan yang tersedia di setiap file atau repositori ini.
 
