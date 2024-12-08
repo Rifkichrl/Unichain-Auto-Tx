@@ -1,3 +1,4 @@
+import os
 import json
 import random
 from web3 import Web3
@@ -16,15 +17,6 @@ ETH_SYMBOL = Fore.YELLOW + "Ξ" + Style.RESET_ALL
 SENDER_ADDRESS_SYMBOL = Fore.CYAN + "📤 Alamat Pengirim:" + Style.RESET_ALL
 RECEIVER_ADDRESS_SYMBOL = Fore.MAGENTA + "📥 Alamat Penerima:" + Style.RESET_ALL
 AMOUNT_SYMBOL = Fore.LIGHTYELLOW_EX + "💵 Jumlah Kiriman:" + Style.RESET_ALL
-
-def print_header():
-    os.system('cls' if os.name == 'nt' else 'clear')
-    print(Fore.YELLOW + "=" * 50)
-    print(Fore.CYAN + " " * 10 + "AUTHOR : Rifki Chairul Pratama")
-    print(Fore.MAGENTA + " " * 10 + "THANKS TO : Rifki Chairul!")
-    print(Fore.BLUE + " " * 10 + "GITHUB: https://github.com/Rifkichrl")
-    print(Fore.GREEN + " " * 10 + "BUY COFFEE FOR ME: 0x7Da96513f323C60595B1AE789F867bfc96aa0bD6 ")
-    print(Fore.YELLOW + "=" * 50 + "\n")
 
 # Koneksi ke Ethereum Sepolia
 web3 = Web3(Web3.HTTPProvider('https://autumn-cosmological-scion.unichain-sepolia.quiknode.pro/c568806873f2a9edb9fcdea8aef0569ff729eb25'))
@@ -96,8 +88,8 @@ def generate_new_wallet():
     wallets = load_wallets()  # Membaca wallet yang ada
 
     for _ in range(num_wallets):
-        account = Account.create()
-        new_wallet = {"address": account.address, "private_key": account.privateKey.hex()}
+        account = Account.create()  # Membuat akun baru
+        new_wallet = {"address": account.address, "private_key": account.key.hex()}  # Menggunakan 'key' bukan 'privateKey'
         wallets.append(new_wallet)
 
     # Menyimpan wallet baru ke file wallets.json
