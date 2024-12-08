@@ -94,3 +94,5 @@ python3 unichain_sepolia.py
 
 Selamat menggunakan! 🚀
 ```
+traktiran nya dong abangku
+```
