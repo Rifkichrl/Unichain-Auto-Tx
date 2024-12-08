@@ -22,7 +22,7 @@ def print_header():
     print(Fore.YELLOW + "=" * 50)
     print(Fore.CYAN + " " * 10 + "AUTHOR : Rifki Chairul Pratama")
     print(Fore.MAGENTA + " " * 10 + "THANKS TO : Rifki Chairul!")
-    print(Fore.BLUE + " " * 10 + "GITHUB: https://https://github.com/Rifkichrl")
+    print(Fore.BLUE + " " * 10 + "GITHUB: https://github.com/Rifkichrl")
     print(Fore.GREEN + " " * 10 + "BUY COFFEE FOR ME: 0x7Da96513f323C60595B1AE789F867bfc96aa0bD6 ")
     print(Fore.YELLOW + "=" * 50 + "\n")
 
@@ -81,7 +81,7 @@ def send_transaction(receiver_address, amount, gas_price):
     signed_tx = web3.eth.account.sign_transaction(tx, private_key)
 
     try:
-        tx_hash = web3.eth.send_raw_transaction(signed_tx.rawTransaction)  # Fix here
+        tx_hash = web3.eth.send_raw_transaction(signed_tx.rawTransaction)
         print(Fore.CYAN + f"{datetime.now()} - Transaksi berhasil ke {receiver_address}. {CHECK_MARK}")
         
         sender_balance_after = get_balance(sender_address)
@@ -99,46 +99,66 @@ def countdown(seconds):
         seconds -= 1
     print(Fore.GREEN + "Memulai kembali proses...\n")
 
-# Variabel untuk menghitung transaksi dan melacak tanggal saat ini
-transaction_count = 0
-current_date = datetime.now().date()
-daily_transaction_limit = random.randint(400, 450)  # Acak jumlah transaksi harian, minimal 400
+def run_bot(amount=None):
+    transaction_count = 0
+    current_date = datetime.now().date()
+    daily_transaction_limit = random.randint(400, 450)  # Acak jumlah transaksi harian, minimal 400
 
-while True:
-    print_header()
+    while True:
+        print_header()
 
-    # Periksa apakah tanggal sudah berubah
-    if datetime.now().date() != current_date:
-        current_date = datetime.now().date()  # Reset tanggal
-        transaction_count = 0  # Reset jumlah transaksi
-        daily_transaction_limit = random.randint(400, 450)  # Tentukan batas harian baru
+        # Periksa apakah tanggal sudah berubah
+        if datetime.now().date() != current_date:
+            current_date = datetime.now().date()  # Reset tanggal
+            transaction_count = 0  # Reset jumlah transaksi
+            daily_transaction_limit = random.randint(400, 450)  # Tentukan batas harian baru
 
-    # Cek apakah sudah mencapai batas transaksi harian
-    if transaction_count >= daily_transaction_limit:
-        next_day = current_date + timedelta(days=1)
-        remaining_time = (datetime.combine(next_day, datetime.min.time()) - datetime.now()).total_seconds()
-        print(Fore.RED + f"Mencapai batas transaksi harian ({daily_transaction_limit}). Menunggu hingga {next_day}...")
-        countdown(int(remaining_time))
-        current_date = datetime.now().date()
-        transaction_count = 0  # Reset jumlah transaksi setelah menunggu
-        daily_transaction_limit = random.randint(400, 450)  # Tentukan batas harian baru
-        continue
+        # Cek apakah sudah mencapai batas transaksi harian
+        if transaction_count >= daily_transaction_limit:
+            next_day = current_date + timedelta(days=1)
+            remaining_time = (datetime.combine(next_day, datetime.min.time()) - datetime.now()).total_seconds()
+            print(Fore.RED + f"Mencapai batas transaksi harian ({daily_transaction_limit}). Menunggu hingga {next_day}...")
+            countdown(int(remaining_time))
+            current_date = datetime.now().date()
+            transaction_count = 0  # Reset jumlah transaksi setelah menunggu
+            daily_transaction_limit = random.randint(400, 450)  # Tentukan batas harian baru
+            continue
 
-    # Ambil alamat-alamat dompet dari wallet.txt
-    wallet_addresses = load_wallet_addresses()
+        # Ambil alamat-alamat dompet dari wallet.txt
+        wallet_addresses = load_wallet_addresses()
 
-    # Tentukan penerima: pilih alamat dari wallet.txt jika ada, atau alamat acak
-    if wallet_addresses:
-        receiver = wallet_addresses[transaction_count % len(wallet_addresses)]  # Loop ke alamat-alamat yang ada
+        # Tentukan penerima: pilih alamat dari wallet.txt jika ada, atau alamat acak
+        if wallet_addresses:
+            receiver = wallet_addresses[transaction_count % len(wallet_addresses)]  # Loop ke alamat-alamat yang ada
+        else:
+            receiver = Web3.to_checksum_address('0x' + ''.join(random.choices('0123456789abcdef', k=40)))  # Alamat acak
+
+        # Tentukan jumlah kiriman, jika tidak diatur oleh user, kirim jumlah acak
+        if amount is None:
+            random_amount = random.uniform(0.00000001, 0.00000002)  # Jumlah pengiriman tetap kecil
+        else:
+            random_amount = amount
+
+        gas_price = get_gas_price()
+        send_transaction(receiver, random_amount, gas_price)
+
+        transaction_count += 1  # Tambahkan transaksi ke hitungan
+
+        # Tunggu dengan jeda acak antara 10 hingga 30 detik
+        countdown(random.randint(10, 30))
+
+# Pilihan untuk menjalankan bot atau mengatur jumlah ETH yang akan dikirim
+def menu():
+    print("1. Jalankan Bot")
+    print("2. Set Jumlah ETH untuk Dikirim (maka bot akan otomatis berjalan setelahnya)")
+    choice = input("Pilih opsi (1/2): ")
+
+    if choice == "1":
+        run_bot()
+    elif choice == "2":
+        amount = float(input("Masukkan jumlah ETH yang akan dikirim: "))
+        run_bot(amount)
     else:
-        receiver = Web3.to_checksum_address('0x' + ''.join(random.choices('0123456789abcdef', k=40)))  # Alamat acak
+        print(Fore.RED + "Pilihan tidak valid!")
 
-    random_amount = random.uniform(0.00000001, 0.00000002)  # Jumlah pengiriman tetap kecil
-    gas_price = get_gas_price()
-    send_transaction(receiver, random_amount, gas_price)
-
-    transaction_count += 1  # Tambahkan transaksi ke hitungan
-
-    # Tunggu dengan jeda acak antara 30 hingga 60 detik
-    countdown(random.randint(10, 30))
-
+menu()
