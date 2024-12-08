@@ -1,4 +1,4 @@
-# Unichain Auto Transaction Bot
+# Unichain Auto SOLO/MULTI WALLET Transaction Bot
 
 Skrip ini digunakan untuk melakukan transaksi otomatis di jaringan **Unichain Sepolia** dengan pengaturan fleksibel seperti jumlah transaksi acak, jeda waktu acak, dan batas transaksi harian.
 
