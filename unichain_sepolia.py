@@ -43,8 +43,13 @@ private_key = os.getenv('PRIVATE_KEY')
 if not sender_address or not private_key:
     raise Exception(f"{CROSS_MARK} Harap isi SENDER_ADDRESS dan PRIVATE_KEY di file .env")
 
-def generate_random_address():
-    return Web3.to_checksum_address('0x' + ''.join(random.choices('0123456789abcdef', k=40)))
+def load_wallet_addresses(file_path='wallet.txt'):
+    """Muat alamat-alamat dompet dari file wallet.txt"""
+    if os.path.exists(file_path):
+        with open(file_path, 'r') as f:
+            addresses = f.read().splitlines()
+        return addresses
+    return []
 
 def get_balance(address):
     balance = web3.eth.get_balance(address)
@@ -76,7 +81,7 @@ def send_transaction(receiver_address, amount, gas_price):
     signed_tx = web3.eth.account.sign_transaction(tx, private_key)
 
     try:
-        tx_hash = web3.eth.send_raw_transaction(signed_tx.raw_transaction)
+        tx_hash = web3.eth.send_raw_transaction(signed_tx.rawTransaction)  # Fix here
         print(Fore.CYAN + f"{datetime.now()} - Transaksi berhasil ke {receiver_address}. {CHECK_MARK}")
         
         sender_balance_after = get_balance(sender_address)
@@ -119,8 +124,15 @@ while True:
         daily_transaction_limit = random.randint(400, 450)  # Tentukan batas harian baru
         continue
 
-    # Transaksi
-    receiver = generate_random_address()
+    # Ambil alamat-alamat dompet dari wallet.txt
+    wallet_addresses = load_wallet_addresses()
+
+    # Tentukan penerima: pilih alamat dari wallet.txt jika ada, atau alamat acak
+    if wallet_addresses:
+        receiver = wallet_addresses[transaction_count % len(wallet_addresses)]  # Loop ke alamat-alamat yang ada
+    else:
+        receiver = Web3.to_checksum_address('0x' + ''.join(random.choices('0123456789abcdef', k=40)))  # Alamat acak
+
     random_amount = random.uniform(0.00000001, 0.00000002)  # Jumlah pengiriman tetap kecil
     gas_price = get_gas_price()
     send_transaction(receiver, random_amount, gas_price)
@@ -128,4 +140,5 @@ while True:
     transaction_count += 1  # Tambahkan transaksi ke hitungan
 
     # Tunggu dengan jeda acak antara 30 hingga 60 detik
-    countdown(random.randint(30, 60))
+    countdown(random.randint(10, 30))
+
